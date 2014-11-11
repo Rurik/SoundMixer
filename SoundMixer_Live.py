@@ -79,7 +79,7 @@ def main():
     try:
         sndKey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, registryBase, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
     except OSError:
-        print "[!] Unable to open registry HKEY_CURRENT_USER for unknown reasons."
+        print '[!] Unable to open registry HKEY_CURRENT_USER for unknown reasons.'
         quit()
         
     sndKeyMeta = _winreg.QueryInfoKey(sndKey)
@@ -88,7 +88,7 @@ def main():
             storeKey = _winreg.EnumKey(sndKey,i)
             sndAppKey = _winreg.OpenKey(sndKey,storeKey)
             sndAppMeta = _winreg.QueryInfoKey(sndAppKey)
-            sndAppValue = _winreg.QueryValueEx(sndAppKey, "")
+            sndAppValue = _winreg.QueryValueEx(sndAppKey, '')
         except EnvironmentError, WindowsError:
             break 
 
@@ -104,7 +104,7 @@ def main():
         modDate = ConvertDate(int(sndAppMeta[2]))
         OutputGUID = sndAppValue[0].split('|')[0].split('}.')[1]
         OutputDevice = GetOutputDevice(OutputGUID)
-        InputGUID = sndAppValue[0].split("%b")[1]
+        InputGUID = sndAppValue[0].split('%b')[1]
         InputDevice = GetInputDevice(InputGUID)
         output = u'%s,%s,%s,%s,%s' % (modDate, OutputDevice, volume, InputDevice, filename)
         print output.encode('utf8', 'replace')

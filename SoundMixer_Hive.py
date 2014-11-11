@@ -83,10 +83,10 @@ def getArgs():
     parser.add_argument('-n', '--ntuser', help='Registry NTUSER.DAT file location', required=True)
     args = parser.parse_args()
     if not file_exists(args.software):
-        print "File not found: %s" % args.software
+        print '[!] File not found: %s' % args.software
         quit()
     if not file_exists(args.ntuser):
-        print "File not found: %s" % args.ntuser
+        print '[!] File not found: %s' % args.ntuser
         quit()
     return args
 
@@ -100,17 +100,17 @@ def main():
     try:
         sndKey = HKCU.open(registryBase)
     except Registry.RegistryKeyNotFoundException:
-        print "Couldn't find Sound Mixer key. Exiting..."
+        print '[!] Could not find Sound Mixer key. Exiting...'
         quit()
     
     for storeKey in sndKey.subkeys():
         try:
-            sndAppValue = storeKey.value("").value() # Get (Default) value
+            sndAppValue = storeKey.value('').value() # Get (Default) value
             modDate = str(storeKey.timestamp()).replace(' ', ',').split('.')[0]
         except EnvironmentError, WindowsError:
             break 
         except Registry.RegistryValueNotFoundException:
-            print "Unable to open key. This is an unexpected error."
+            print '[!] Unable to open key. This is an unexpected error.'
             quit()
 
         volume = 0
@@ -124,7 +124,7 @@ def main():
         filename = unicode(sndAppValue).split('|')[1].split('%')[0]
         OutputGUID = sndAppValue.split('|')[0].split('}.')[1]
         OutputDevice = GetOutputDevice(OutputGUID)
-        InputGUID = sndAppValue.split("%b")[1]
+        InputGUID = sndAppValue.split('%b')[1]
         InputDevice = GetInputDevice(InputGUID)
         output = u'%s,%s,%s,%s,%s' % (modDate, OutputDevice, volume, InputDevice, filename)
         print output.encode('utf8', 'replace')
