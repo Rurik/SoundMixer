@@ -14,7 +14,6 @@ except ImportError:
     print 'This script must be run from within a Windows environment.'
     quit()
 
-    
 def ConvertDate(ns):
     """
     Converts a given number of nanoseconds since 1 Jan 1601 to a standard date.
@@ -41,7 +40,7 @@ def GetOutputDevice(guid):
 
     try:
         deviceKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key, 0, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
-    except WindowsError:
+    except OSError:
         return guid
     deviceNameKey = _winreg.QueryValueEx(deviceKey, '{a45c254e-df1c-4efd-8020-67d146a850e0},2')[0]
     if deviceNameKey:
@@ -64,7 +63,7 @@ def GetInputDevice(guid):
     key = '%s\\%s\\%s' % (r'SOFTWARE\Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture', guid, 'Properties')
     try:
         deviceKey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE, key, 0, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
-    except WindowsError:
+    except OSError:
         return guid
     deviceNameKey = _winreg.QueryValueEx(deviceKey, '{a45c254e-df1c-4efd-8020-67d146a850e0},2')[0]
     if deviceNameKey:
@@ -76,7 +75,13 @@ def GetInputDevice(guid):
 def main():
     registryBase = r'SOFTWARE\Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore'
     volumeSuffix = r'{219ED5A0-9CBF-4F3A-B927-37C9E5C5F14F}'
-    sndKey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, registryBase)
+    
+    try:
+        sndKey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER, registryBase, _winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
+    except OSError:
+        print "[!] Unable to open registry HKEY_CURRENT_USER for unknown reasons."
+        quit()
+        
     sndKeyMeta = _winreg.QueryInfoKey(sndKey)
     for i in range(0, sndKeyMeta[0]):
         try:
