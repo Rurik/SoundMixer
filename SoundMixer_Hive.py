@@ -26,10 +26,10 @@ def file_exists(fname):
     Results:
         boolean value if file exists
     """
-    return os.path.exists(fname) and os.access(fname, os.X_OK)
+    return os.path.exists(fname) and os.access(fname, os.F_OK)
 
     
-def GetOutputDevice(guid):
+def GetOutputDevice(hive, guid):
     """
     Acquires the Windows audio output device name for a given GUID
     Arguments:
@@ -39,7 +39,7 @@ def GetOutputDevice(guid):
     """
     key = '%s\\%s\\%s' % (r'Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render', guid, 'Properties')
 
-    HKLM = Registry.Registry('Reg\\SOFTWARE')
+    HKLM = Registry.Registry(hive)
     try:
         deviceKey = HKLM.open(key)
     except Registry.RegistryKeyNotFoundException:
@@ -52,7 +52,7 @@ def GetOutputDevice(guid):
         return guid
 
 
-def GetInputDevice(guid):
+def GetInputDevice(hive, guid):
     """
     Acquires the Windows audio input device name for a given GUID
     Arguments:
@@ -64,7 +64,7 @@ def GetInputDevice(guid):
         return 'N/A'
     key = '%s\\%s\\%s' % (r'Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture', guid, 'Properties')
 
-    HKLM = Registry.Registry('Reg\\SOFTWARE')
+    HKLM = Registry.Registry(hive)
     try:
         deviceKey = HKLM.open(key)
     except Registry.RegistryKeyNotFoundException:
@@ -95,7 +95,7 @@ def main():
     args = getArgs()
     registryBase = r'SOFTWARE\Microsoft\Internet Explorer\LowRegistry\Audio\PolicyConfig\PropertyStore'
     volumeSuffix = '{219ED5A0-9CBF-4F3A-B927-37C9E5C5F14F}'
-    HKCU = Registry.Registry('Reg\\NTUSER.DAT')
+    HKCU = Registry.Registry(args.ntuser)
     
     try:
         sndKey = HKCU.open(registryBase)
@@ -123,9 +123,9 @@ def main():
             
         filename = unicode(sndAppValue).split('|')[1].split('%')[0]
         OutputGUID = sndAppValue.split('|')[0].split('}.')[1]
-        OutputDevice = GetOutputDevice(OutputGUID)
+        OutputDevice = GetOutputDevice(args.software, OutputGUID)
         InputGUID = sndAppValue.split('%b')[1]
-        InputDevice = GetInputDevice(InputGUID)
+        InputDevice = GetInputDevice(args.software, InputGUID)
         output = u'%s,%s,%s,%s,%s' % (modDate, OutputDevice, volume, InputDevice, filename)
         print output.encode('utf8', 'replace')
 
