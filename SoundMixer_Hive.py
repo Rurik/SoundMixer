@@ -37,6 +37,8 @@ def GetOutputDevice(hive, guid):
     Results:
         Device name or original GUID if no results
     """
+    if not hive:
+        return guid
     key = '%s\\%s\\%s' % (r'Microsoft\Windows\CurrentVersion\MMDevices\Audio\Render', guid, 'Properties')
 
     HKLM = Registry.Registry(hive)
@@ -62,6 +64,8 @@ def GetInputDevice(hive, guid):
     """
     if guid == '{00000000-0000-0000-0000-000000000000}':
         return 'N/A'
+    if not hive:
+        return guid
     key = '%s\\%s\\%s' % (r'Microsoft\Windows\CurrentVersion\MMDevices\Audio\Capture', guid, 'Properties')
 
     HKLM = Registry.Registry(hive)
@@ -78,11 +82,16 @@ def GetInputDevice(hive, guid):
 
         
 def getArgs():
+    """
+    Parse the command line arguments
+    Results:
+        Dictionary of arguments
+    """
     parser = ArgumentParser()
-    parser.add_argument('-s', '--software', help='Registry SOFTWARE file location', required=True)
+    parser.add_argument('-s', '--software', help='Registry SOFTWARE file location', required=False)
     parser.add_argument('-n', '--ntuser', help='Registry NTUSER.DAT file location', required=True)
     args = parser.parse_args()
-    if not file_exists(args.software):
+    if (args.software) and (not file_exists(args.software)):
         print '[!] File not found: %s' % args.software
         quit()
     if not file_exists(args.ntuser):
